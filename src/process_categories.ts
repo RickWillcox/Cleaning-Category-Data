@@ -162,11 +162,15 @@ function processDirtyData() {
     deleteOldJsonFile();
 
     inProcessingArray = makeArrayOfArrays(RAW_CATEGORY_SET);
+
+    // console.log('Step 1: ', inProcessingArray);
+
     logUniqueCategoriesArray(
         'Raw Categories -----------------------',
         inProcessingArray
     );
-    console.log(inProcessingArray);
+
+    // console.log('Step 2: ', inProcessingArray);
 
     inProcessingArray = arrayToLowerCase(inProcessingArray);
     logUniqueCategoriesArray(
@@ -174,11 +178,15 @@ function processDirtyData() {
         inProcessingArray
     );
 
+    // console.log('Step 3: ', inProcessingArray);
+
     inProcessingArray = arraySplitWords(inProcessingArray);
     logUniqueCategoriesArray(
         'Split any category with multiple words',
         inProcessingArray
     );
+
+    // console.log('Step 4: ', inProcessingArray);
 
     inProcessingArray = arrayRemoveAllNonLetters(inProcessingArray);
     logUniqueCategoriesArray(
@@ -186,11 +194,15 @@ function processDirtyData() {
         inProcessingArray
     );
 
+    // console.log('Step 5: ', inProcessingArray);
+
     inProcessingArray = arrayRemoveEmptyElements(inProcessingArray);
     logUniqueCategoriesArray(
         'Remove all empty that are numbers-----',
         inProcessingArray
     );
+
+    // console.log('Step 6: ', inProcessingArray);
 
     // Convert to Dict to remove duplicates in index 1 and keep what they were originally
     var inProcessingDict: any = {};
@@ -201,17 +213,23 @@ function processDirtyData() {
         inProcessingDict
     );
 
+    // console.log('Step 7: ', inProcessingDict);
+
     inProcessingDict = dictRemovePlurals(inProcessingDict);
     logUniqueCategoriesArray(
         'Remove all Plurals -------------------',
         inProcessingDict
     );
 
+    // console.log('Step 8: ', inProcessingDict);
+
     inProcessingDict = dictRemoveDupeValues(inProcessingDict);
     logUniqueCategoriesArray(
         'Remove Duplicate Value for each key --',
         inProcessingDict
     );
+
+    // console.log('Step 9: ', inProcessingDict);
 
     saveProcessedDataToJson(inProcessingDict);
 
