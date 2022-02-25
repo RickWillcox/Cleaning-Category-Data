@@ -37,8 +37,10 @@ function arraySplitWords(array: string[][]): string[][] {
     const elementsToRemove: number[] = [];
     var returnArray: string[][] = [];
     for (let i = 0; i < array.length; i++) {
-        let splitCategory = array[i][0].split(/[\s/]+/);
+        console.log((splitCategory = array[i][0]));
+        let splitCategory = array[i][0].split(/[\s/\-\_\#]+/);
         if (splitCategory.length > 1) {
+            console.log(splitCategory);
             let newCategory: string[] = splitCategory.filter(
                 (x) => !toRemove.has(x)
             );
@@ -126,53 +128,61 @@ function logUniqueCategoriesArray(
     }
 }
 
-// Process flow
-var inProcessingArray: string[][] = [];
-inProcessingArray = makeArrayOfArrays(rawCategories);
-logUniqueCategoriesArray(
-    "Raw Categories -----------------------",
-    inProcessingArray
-);
+function processDirtyData() {
+    // Process flow
+    var inProcessingArray: string[][] = [];
+    inProcessingArray = makeArrayOfArrays(rawCategories);
+    logUniqueCategoriesArray(
+        "Raw Categories -----------------------",
+        inProcessingArray
+    );
 
-inProcessingArray = arrayToLowerCase(inProcessingArray);
-logUniqueCategoriesArray(
-    "Lowercase everything -----------------",
-    inProcessingArray
-);
+    inProcessingArray = arrayToLowerCase(inProcessingArray);
+    logUniqueCategoriesArray(
+        "Lowercase everything -----------------",
+        inProcessingArray
+    );
 
-inProcessingArray = arraySplitWords(inProcessingArray);
-logUniqueCategoriesArray(
-    "Split any category with multiple words",
-    inProcessingArray
-);
+    inProcessingArray = arraySplitWords(inProcessingArray);
+    logUniqueCategoriesArray(
+        "Split any category with multiple words",
+        inProcessingArray
+    );
 
-inProcessingArray = arrayRemoveAllNonLetters(inProcessingArray);
-logUniqueCategoriesArray(
-    "Remove all categories that are numbers",
-    inProcessingArray
-);
+    inProcessingArray = arrayRemoveAllNonLetters(inProcessingArray);
+    logUniqueCategoriesArray(
+        "Remove all categories that are numbers",
+        inProcessingArray
+    );
 
-inProcessingArray = arrayRemoveEmptyElements(inProcessingArray);
-logUniqueCategoriesArray(
-    "Remove all empty that are numbers-----",
-    inProcessingArray
-);
+    inProcessingArray = arrayRemoveEmptyElements(inProcessingArray);
+    logUniqueCategoriesArray(
+        "Remove all empty that are numbers-----",
+        inProcessingArray
+    );
 
-// Convert to Dict to remove duplicates in index 1 and keep what they were originally
-var inProcessingDict: any = {};
+    // Convert to Dict to remove duplicates in index 1 and keep what they were originally
+    var inProcessingDict: any = {};
 
-inProcessingDict = arrayRemoveDuplicatesToDict(inProcessingArray);
-logUniqueCategoriesArray(
-    "Remove Dupes and convert to Obj ------",
-    inProcessingDict
-);
+    inProcessingDict = arrayRemoveDuplicatesToDict(inProcessingArray);
+    logUniqueCategoriesArray(
+        "Remove Dupes and convert to Obj ------",
+        inProcessingDict
+    );
 
-inProcessingDict = dictRemovePlurals(inProcessingDict);
-logUniqueCategoriesArray(
-    "Remove all Plurals -------------------",
-    inProcessingDict
-);
+    inProcessingDict = dictRemovePlurals(inProcessingDict);
+    logUniqueCategoriesArray(
+        "Remove all Plurals -------------------",
+        inProcessingDict
+    );
+}
 
+// Main function that runs all the other helper functions
+processDirtyData();
+
+// console.log("this-is-a-a-a a thin/g/r #p#".split(/[\s/\-\_\#]+/));
+
+// console.log(inProcessingDict);
 // console.log(inProcessingDict);
 
 // dictRemovePlurals explanation
