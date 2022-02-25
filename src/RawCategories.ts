@@ -9,9 +9,13 @@ export const testCategories: string[] = [
     'shirt CLOTHING',
     'dress female women/clothing/fashion',
     'dresses CLOTHING',
+<<<<<<< HEAD
     'dresses summer clothing'
     'womens-dress fashion',
     '9099/ men, tank-tops, $50',
+=======
+    'womens-dress fashion',
+>>>>>>> master
 ];
 
 export const rawCategories: string[] = [

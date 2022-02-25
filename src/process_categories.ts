@@ -156,7 +156,11 @@ function deleteOldJsonFile() {
 
 function processDirtyData() {
     // Process flow
+<<<<<<< HEAD
     const RAW_CATEGORY_SET = testCategories;
+=======
+    const RAW_CATEGORY_SET = rawCategories;
+>>>>>>> master
     var inProcessingArray: string[][] = [];
 
     deleteOldJsonFile();
