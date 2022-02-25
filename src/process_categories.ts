@@ -1,5 +1,8 @@
-import { rawCategories } from "./RawCategories";
-const extract = require("extract-lemmatized-nonstop-words");
+// @ts-nocheck
+
+import { rawCategories, testCategories } from './RawCategories';
+const extract = require('extract-lemmatized-nonstop-words');
+var fs = require('fs');
 
 // The processing array will have two different "columns",
 // the index 0 in the array will be the processing word,
@@ -17,13 +20,14 @@ function makeArrayOfArrays(array: string[]) {
 function arrayToLowerCase(array: string[][]): string[][] {
     for (let i = 0; i < array.length; i++) {
         array[i][0] = array[i][0].toLowerCase();
+        array[i][1] = array[i][1].toLowerCase();
     }
     return array;
 }
 
 function arrayRemoveAllNonLetters(array: string[][]): string[][] {
     for (let i = 0; i < array.length; i++) {
-        array[i][0] = array[i][0].replace(/[^a-z ]/gi, ""); //there is a space after the z to not remove spaces
+        array[i][0] = array[i][0].replace(/[^a-z ]/gi, ''); //there is a space after the z to not remove spaces
     }
     return array;
 }
@@ -33,14 +37,13 @@ function arrayRemoveDuplicates(array: any[]) {
 }
 
 function arraySplitWords(array: string[][]): string[][] {
-    const toRemove = new Set(["", ",", " "]);
+    const toRemove = new Set(['', ',', ' ']);
     const elementsToRemove: number[] = [];
     var returnArray: string[][] = [];
     for (let i = 0; i < array.length; i++) {
-        console.log((splitCategory = array[i][0]));
-        let splitCategory = array[i][0].split(/[\s/\-\_\#]+/);
+        // let splitCategory = array[i][0].split(/[\s/\-\_\#]+/);
+        let splitCategory = array[i][0].split(/[^A-Za-z]+/);
         if (splitCategory.length > 1) {
-            console.log(splitCategory);
             let newCategory: string[] = splitCategory.filter(
                 (x) => !toRemove.has(x)
             );
@@ -57,7 +60,7 @@ function arraySplitWords(array: string[][]): string[][] {
 function arrayRemoveEmptyElements(array: string[][]): string[][] {
     var returnArray: string[][] = [];
     for (let i = 0; i < array.length; i++) {
-        if (!(array[i][0] === "" || array[i][0] === " ")) {
+        if (!(array[i][0] === '' || array[i][0] === ' ')) {
             returnArray.push(array[i]);
         }
     }
@@ -84,8 +87,8 @@ function dictRemovePlurals(dictionary: Object) {
     for (let i = 0; i < keysArray.length; i++) {
         // does this word end in "s"?
         let word: string = keysArray[i];
-        let isS: boolean = keysArray[i].slice(-1) === "s" ? true : false;
-        let isES: boolean = keysArray[i].slice(-2) === "es" ? true : false;
+        let isS: boolean = keysArray[i].slice(-1) === 's' ? true : false;
+        let isES: boolean = keysArray[i].slice(-2) === 'es' ? true : false;
         let wordMinusS: string = keysArray[i].slice(0, -1);
         let wordMinusES: string = keysArray[i].slice(0, -2);
         if (isS) {
@@ -114,6 +117,15 @@ function dictRemovePlurals(dictionary: Object) {
     return dictionary;
 }
 
+function dictRemoveDupeValues(dictionary: Object) {
+    for (const key in dictionary) {
+        let tempArray: string[] = dictionary[key];
+        tempArray = arrayRemoveDuplicates(tempArray);
+        dictionary[key] = tempArray;
+    }
+    return dictionary;
+}
+
 function logUniqueCategoriesArray(
     lastFunctionRun: string,
     x: Object | string[][]
@@ -128,36 +140,55 @@ function logUniqueCategoriesArray(
     }
 }
 
+function saveProcessedDataToJson(processedData: Object) {
+    const jsonProcessedData = JSON.stringify(processedData);
+    fs.writeFile('processed_data.json', jsonProcessedData, function (err: any) {
+        if (!err) {
+            console.log('processed_data.json Saved!');
+        }
+    });
+}
+
+function deleteOldJsonFile() {
+    //unused as overwriting keeps my formatting
+    fs.unlink('processed_data.json', function (err: any) {});
+}
+
 function processDirtyData() {
     // Process flow
+    const RAW_CATEGORY_SET = testCategories;
     var inProcessingArray: string[][] = [];
-    inProcessingArray = makeArrayOfArrays(rawCategories);
+
+    deleteOldJsonFile();
+
+    inProcessingArray = makeArrayOfArrays(RAW_CATEGORY_SET);
     logUniqueCategoriesArray(
-        "Raw Categories -----------------------",
+        'Raw Categories -----------------------',
         inProcessingArray
     );
+    console.log(inProcessingArray);
 
     inProcessingArray = arrayToLowerCase(inProcessingArray);
     logUniqueCategoriesArray(
-        "Lowercase everything -----------------",
+        'Lowercase everything -----------------',
         inProcessingArray
     );
 
     inProcessingArray = arraySplitWords(inProcessingArray);
     logUniqueCategoriesArray(
-        "Split any category with multiple words",
+        'Split any category with multiple words',
         inProcessingArray
     );
 
     inProcessingArray = arrayRemoveAllNonLetters(inProcessingArray);
     logUniqueCategoriesArray(
-        "Remove all categories that are numbers",
+        'Remove all categories that are numbers',
         inProcessingArray
     );
 
     inProcessingArray = arrayRemoveEmptyElements(inProcessingArray);
     logUniqueCategoriesArray(
-        "Remove all empty that are numbers-----",
+        'Remove all empty that are numbers-----',
         inProcessingArray
     );
 
@@ -166,24 +197,29 @@ function processDirtyData() {
 
     inProcessingDict = arrayRemoveDuplicatesToDict(inProcessingArray);
     logUniqueCategoriesArray(
-        "Remove Dupes and convert to Obj ------",
+        'Remove Dupes and convert to Obj ------',
         inProcessingDict
     );
 
     inProcessingDict = dictRemovePlurals(inProcessingDict);
     logUniqueCategoriesArray(
-        "Remove all Plurals -------------------",
+        'Remove all Plurals -------------------',
         inProcessingDict
     );
+
+    inProcessingDict = dictRemoveDupeValues(inProcessingDict);
+    logUniqueCategoriesArray(
+        'Remove Duplicate Value for each key --',
+        inProcessingDict
+    );
+
+    saveProcessedDataToJson(inProcessingDict);
+
+    // console.log(inProcessingDict);
 }
 
 // Main function that runs all the other helper functions
 processDirtyData();
-
-// console.log("this-is-a-a-a a thin/g/r #p#".split(/[\s/\-\_\#]+/));
-
-// console.log(inProcessingDict);
-// console.log(inProcessingDict);
 
 // dictRemovePlurals explanation
 // const a = {
