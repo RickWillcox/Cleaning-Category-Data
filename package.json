@@ -2,14 +2,17 @@
   "name": "clean-code",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "process_categories.js",
   "scripts": {
-    "start": "node dist/process_categories.js"
+    "nodemon": "nodemon dist/process_categories.js",
+    "start" : "node dist/process_categories.js"
   },
   "author": "Rick Willcox",
   "license": "ISC",
   "dependencies": {
     "extract-lemmatized-nonstop-words": "^1.0.19",
+    "fs": "^0.0.1-security",
+    "nodemon": "^2.0.15",
     "tsc": "^2.0.4"
   },
   "devDependencies": {
