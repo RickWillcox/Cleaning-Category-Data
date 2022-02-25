@@ -1,4 +1,4 @@
-# Dirty Data Cleaner
+# Dirty Data Cleaner 
 
 A preprocessing script to try and clean up data from an array of strings. It still has a few bugs, mainly around the numbers not being added as an element however for the exact use case of this script this is actually a feature.
 
