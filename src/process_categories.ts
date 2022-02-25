@@ -76,87 +76,124 @@ function arrayRemoveDuplicatesToDict(array: string[][]): Object {
     return returnDict;
 }
 
-// function dictRemovePlurals(dictionary: Object) {
-//     const keysArray: string[] = Object.keys(dictionary);
-//     const keysToRemove: string[] = [];
-//     for (let i = 0; i < keysArray.length; i++) {
-//         // does this word end in "s"?
-//         if (keysArray[i].slice(-1) === "s") {
-//             // does this word minus s exist as a key? (is it a plural shoes > shoe)
-//             // @ts-ignore
-//             if (!!(dictionary[(keysArray[i].slice(-1))])){
-//                 //non plural key exists
-//                 dictionary[sWord].concat(dictionary[keysArray[i]]);
-//                 keysToRemove.push(keysArray[i]); //this key was merged so we remove it later from the main dictionary
-//             } else if{
-//                 if (!!(dictionary[(keysArray[i].slice(-2))])){
-//                     //non plural key exists
-//                     dictionary[sWord].concat(dictionary[keysArray[i]]);
-//                     keysToRemove.push(keysArray[i]); //this key was merged so we remove it later from the main dictionary
-//             }
+function dictRemovePlurals(dictionary: Object) {
+    const keysArray: string[] = Object.keys(dictionary);
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < keysArray.length; i++) {
+        // does this word end in "s"?
+        let word: string = keysArray[i];
+        let isS: boolean = keysArray[i].slice(-1) === "s" ? true : false;
+        let isES: boolean = keysArray[i].slice(-2) === "es" ? true : false;
+        let wordMinusS: string = keysArray[i].slice(0, -1);
+        let wordMinusES: string = keysArray[i].slice(0, -2);
+        if (isS) {
+            // Does this word minus S exist as a key
+            if (!!dictionary[wordMinusS]) {
+                dictionary[wordMinusS] = dictionary[wordMinusS].concat(
+                    dictionary[word]
+                );
+                keysToRemove.push(word); //this key was merged so we remove it later from the main dictionary
+            } else if (isES) {
+                // Does this word minus ES exist as a key
+                // word does end in "es" eg dresses
+                if (!!dictionary[wordMinusES]) {
+                    dictionary[wordMinusES] = dictionary[wordMinusES].concat(
+                        dictionary[word]
+                    );
+                    keysToRemove.push(word); //this key was merged so we remove it later from the main dictionary
+                }
+            }
+        }
+    }
 
-//             try {
-//                 // if (!!dictionary[""])
+    keysToRemove.forEach((word) => {
+        delete dictionary[word];
+    });
+    return dictionary;
+}
 
-//                 // @ts-ignore
-
-//             } catch {
-//                 // key -s doesnt exist
-//                 // maybe its ES like (Dresses > Dress)
-//                 try {
-//                     var esWord: String = Object.keys(
-//                         inProcessingDict[keysArray[i]]
-//                     ).slice(0, -2)[0];
-//                     //non plural key exists
-//                     // @ts-ignore
-//                     dictionary[sWord].concat(dictionary[keysArray[i]]);
-//                     keysToRemove.push(keysArray[i]); //this key was merged so we remove it later from the main dictionary
-//                 } catch {
-//                     // key -s doesnt exist, likely just a word that ends in s that isnt a plural
-//                     // Do nothing
-//                 }
-//             }
-//         }
-//     }
-//     // remove all the s and es we merged already
-//     for (let i = 0; i < keysToRemove.length; i++) {
-//         // @ts-ignore
-//         delete dictionary[keysToRemove[i]];
-//     }
-//     return dictionary;
-// }
+function logUniqueCategoriesArray(
+    lastFunctionRun: string,
+    x: Object | string[][]
+) {
+    try {
+        // if this fails its an object
+        //@ts-ignore
+        x[0].constructor === Array;
+        console.log(lastFunctionRun, x.length);
+    } catch {
+        console.log(lastFunctionRun, Object.keys(x).length);
+    }
+}
 
 // Process flow
 var inProcessingArray: string[][] = [];
 inProcessingArray = makeArrayOfArrays(rawCategories);
+logUniqueCategoriesArray(
+    "Raw Categories -----------------------",
+    inProcessingArray
+);
+
 inProcessingArray = arrayToLowerCase(inProcessingArray);
+logUniqueCategoriesArray(
+    "Lowercase everything -----------------",
+    inProcessingArray
+);
+
 inProcessingArray = arraySplitWords(inProcessingArray);
+logUniqueCategoriesArray(
+    "Split any category with multiple words",
+    inProcessingArray
+);
+
 inProcessingArray = arrayRemoveAllNonLetters(inProcessingArray);
+logUniqueCategoriesArray(
+    "Remove all categories that are numbers",
+    inProcessingArray
+);
+
 inProcessingArray = arrayRemoveEmptyElements(inProcessingArray);
+logUniqueCategoriesArray(
+    "Remove all empty that are numbers-----",
+    inProcessingArray
+);
+
 // Convert to Dict to remove duplicates in index 1 and keep what they were originally
 var inProcessingDict: any = {};
+
 inProcessingDict = arrayRemoveDuplicatesToDict(inProcessingArray);
+logUniqueCategoriesArray(
+    "Remove Dupes and convert to Obj ------",
+    inProcessingDict
+);
+
+inProcessingDict = dictRemovePlurals(inProcessingDict);
+logUniqueCategoriesArray(
+    "Remove all Plurals -------------------",
+    inProcessingDict
+);
 
 // console.log(inProcessingDict);
 
 // dictRemovePlurals explanation
-const a = {
-    shoe: ["a", "b", "c"],
-    shoes: ["d", "e", "f"],
-    dress: ["a"],
-    dresss: ["b"],
-    dresses: ["c"],
-    coat: ["a", "b"],
-};
-// console.log(dictRemovePlurals(a));
-
-// console.log(a["shoes"].slice(0, -1));
-// dictionary[(keysArray[i].slice(-1))]
-// console.log(!!a["shoesss"]);
-console.log("TEST".slice(0, 1));
-console.log("TEST".slice(0, -1));
-console.log("TEST".slice(1, -1));
-// console.log("TEST".slice(1, 1));
+// const a = {
+//     shoe: ["a", "b", "c"],
+//     shoes: ["d", "e", "f"],
+//     dress: ["a"],
+//     dresss: ["b"],
+//     dresses: ["c"],
+//     coat: ["a", "b"],
+//     boat: ["a", "b"],
+//     boats: ["c", "d"],
+// };
+// console.log(dictRemovePlurals(a))
+// >>
+// {
+//   shoe: [ 'a', 'b', 'c', 'd', 'e', 'f' ],
+//   dress: [ 'a', 'b', 'c' ],
+//   coat: [ 'a', 'b' ],
+//   boat: [ 'a', 'b', 'c', 'd' ]
+// }
 
 // arrayRemoveDuplicatesToDict explantion
 // const a = [
@@ -221,3 +258,40 @@ console.log("TEST".slice(1, -1));
 //     [ 'sandals', 'LADIES DRESS SANDALS/SLIDES/MULES' ],
 //     [ 'slides', 'LADIES DRESS SANDALS/SLIDES/MULES' ],
 //     [ 'mules', 'LADIES DRESS SANDALS/SLIDES/MULES' ]
+
+//         } else if{
+//             if (!!(dictionary[(keysArray[i].slice(-2))])){
+//                 //non plural key exists
+//                 dictionary[sWord].concat(dictionary[keysArray[i]]);
+//                 keysToRemove.push(keysArray[i]); //this key was merged so we remove it later from the main dictionary
+//         }
+
+//         try {
+//             // if (!!dictionary[""])
+
+//             // @ts-ignore
+
+//         } catch {
+//             // key -s doesnt exist
+//             // maybe its ES like (Dresses > Dress)
+//             try {
+//                 var esWord: String = Object.keys(
+//                     inProcessingDict[keysArray[i]]
+//                 ).slice(0, -2)[0];
+//                 //non plural key exists
+//                 // @ts-ignore
+//                 dictionary[sWord].concat(dictionary[keysArray[i]]);
+//                 keysToRemove.push(keysArray[i]); //this key was merged so we remove it later from the main dictionary
+//             } catch {
+//                 // key -s doesnt exist, likely just a word that ends in s that isnt a plural
+//                 // Do nothing
+//             }
+//         }
+//     }
+// }
+// // remove all the s and es we merged already
+// for (let i = 0; i < keysToRemove.length; i++) {
+//     // @ts-ignore
+//     delete dictionary[keysToRemove[i]];
+// }
+// return dictionary;
